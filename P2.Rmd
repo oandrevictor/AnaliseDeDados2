@@ -1,0 +1,61 @@
+---
+title: "Lab 3 - Parte 2:Prevendo Evasão"
+author: "André Victor de Andrade Lopes"
+date: "20 de fevereiro de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,dev=c('png','postscript'))
+knitr::opts_chunk$set(comment=NA, fig.width=8, fig.align='center', fig.env='marginfigure')
+#library imports
+#install.packages("tidyr")
+library(dplyr)
+library(ggplot2)
+library(plyr)
+library(tidyr)
+library(caret)
+
+```
+
+## Preparando os Dados: Criação de variável + Treino de Teste
+```{r}
+training.data.raw <- read.csv('treino_classificacao_v2.csv',header=T)
+
+# Get only the necessary columns: Identification, Year and Evasion
+training.by.year <- training.data.raw[c(1,4,7)]
+#Remove duplicated info from the same student
+training.by.year <- aggregate(MAT_TUR_ANO ~ MAT_ALU_MATRICULA + EVADIU, training.by.year,  FUN= mean)
+#Get only the data of students that evade
+evasions.by.year <- subset(training.by.year, EVADIU)
+
+data.by.params <- spread(training.data.raw, key = disciplina, value = MAT_MEDIA_FINAL)
+data.by.params[is.na(data.by.params)] <- 0
+data.by.params <- data.by.params[c(1,6,7,8,9,10,11)]
+data.by.params <- data.by.params %>% 
+  group_by(MAT_ALU_MATRICULA) %>% 
+  summarise_each(funs(sum))
+
+data.by.params <- merge(data.by.params, training.by.year, by = "MAT_ALU_MATRICULA")
+
+data.by.params["Perdeu3"] <- FALSE
+data.by.params["CadeirasPerdidas"] <- 0
+
+for (j in 1:nrow(data.by.params)){ 
+  x <- data.by.params[j,]
+  tt <- 0
+  for(i in 2:7) {
+    col <- x[i]
+     if (col < 5){
+       tt<- tt+ 1
+       }
+  }
+    data.by.params[j,11]<- tt
+  if(tt>3){
+    data.by.params[j,10] <- TRUE
+  }
+  
+}
+
+```
+

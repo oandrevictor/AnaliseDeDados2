@@ -1,0 +1,512 @@
+evasion.box.plot + geom_bar()  + scale_fill_hue(l=55, c=100)
+evasion.box.plot <- ggplot(training.by.year , aes(x=EVADIU, fill = EVADIU)) +
+geom_bar(aes(y = (..count..)/sum(..count..), fill = EVADIU), width = 1) +
+labs(x = "Situação de Evasão", y = "Total de Alunos") +
+ggtitle("Distribuição dos dados") +
+geom_text(stat='count',aes(label=..count.., y = ..count.. -10 ),color="white") +
+theme(legend.position="none", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))
+evasion.box.plot + geom_bar()  + scale_fill_hue(l=55, c=100)
+evasion.box.plot <- ggplot(training.by.year , aes(x=EVADIU, fill = EVADIU)) +
+geom_bar(aes(y = (..count..)/sum(..count..), fill = EVADIU), width = 1) +
+labs(x = "Situação de Evasão", y = "Total de Alunos") +
+ggtitle("Distribuição dos dados") +
+theme(legend.position="none", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))
+evasion.box.plot + geom_bar()  + scale_fill_hue(l=55, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count.. -10 ),color="white")
+evasion.box.plot <- ggplot(training.by.year , aes(x=EVADIU, fill = EVADIU)) +
+geom_bar(aes(y = (..count..)/sum(..count..), fill = EVADIU), width = 1) +
+labs(x = "Situação de Evasão", y = "Total de Alunos") +
+ggtitle("Distribuição dos dados") +
+theme(legend.position="none", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))
+evasion.box.plot + geom_bar()  + scale_fill_hue(l=55, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count.. -30 ),color="white")
+1298/53
+24*53
+data.by.params <- spread(training.data.raw, key = disciplina, value = MAT_MEDIA_FINAL)
+data.by.params[is.na(data.by.params)] <- 0
+data.by.params <- data.by.params[c(1,6,7,8,9,10,11)]
+data.by.params <- data.by.params %>%
+group_by(MAT_ALU_MATRICULA) %>%
+summarise_each(funs(sum))
+data.by.params <- merge(data.by.params, training.by.year, by = "MAT_ALU_MATRICULA")
+data.by.params["Perdeu3"] <- FALSE
+data.by.params["CadeirasPerdidas"] <- 0
+for (j in 1:nrow(data.by.params)){
+x <- data.by.params[j,]
+tt <- 0
+for(i in 2:7) {
+col <- x[i]
+if (col < 5){
+tt<- tt+ 1
+}
+}
+data.by.params[j,11]<- tt
+if(tt>3){
+data.by.params[j,10] <- TRUE
+}
+}
+data.perdeu3 <- subset(data.by.params, Perdeu3)
+perdeu3.evadiu <- subset(data.perdeu3, EVADIU)
+perdeu3.naoevadiu <- subset(data.perdeu3, !EVADIU)
+p10 <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas)) +
+geom_boxplot()
+p10
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de Alunos") +
+ggtitle("Dispersão da quantidade de cadeiras perdidas de acordo com") +
+cadeirasperdidas.boxplot
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de Alunos") +
+ggtitle("Dispersão da quantidade de cadeiras perdidas de acordo com") +
+cadeirasperdidas.boxplot
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de Alunos") +
+ggtitle("Dispersão da quantidade de cadeiras perdidas de acordo com")
+cadeirasperdidas.boxplot
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de cadeiras perdidas") +
+ggtitle("Dispersão da quantidade de cadeiras perdidas de acordo com a situação de evasão")
+cadeirasperdidas.boxplot
+data.perdeu3 <- subset(data.by.params, Perdeu3)
+perdeu3.evadiu <- subset(data.perdeu3, EVADIU)
+perdeu3.naoevadiu <- subset(data.perdeu3, !EVADIU)
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão")
+cadeirasperdidas.boxplot
+data.perdeu3 <- subset(data.by.params, Perdeu3)
+perdeu3.evadiu <- subset(data.perdeu3, EVADIU)
+perdeu3.naoevadiu <- subset(data.perdeu3, !EVADIU)
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas), fill = CadeirasPerdidas) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão")
+cadeirasperdidas.boxplot
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = CadeirasPerdidas)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão")
+cadeirasperdidas.boxplot
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = EVADIU)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão")
+cadeirasperdidas.boxplot
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = EVADIU)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão") +
+scale_fill_gradient(low="blue", high="red")
+cadeirasperdidas.boxplot
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = CadeirasPerdidas)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão") +
+scale_fill_gradient(low="blue", high="red")
+cadeirasperdidas.boxplot
+sperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = Evadiu)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão") +
+scale_fill_gradient(low="blue", high="red")
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = Evadiu)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão") +
+scale_fill_gradient(low="blue", high="red")
+cadeirasperdidas.boxplot
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = EVADIU)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão") +
+theme(legend.position="none", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))
+cadeirasperdidas.boxplot
+data.perdeu3 <- subset(data.by.params, Perdeu3)
+perdeu3.evadiu <- subset(data.perdeu3, EVADIU)
+perdeu3.naoevadiu <- subset(data.perdeu3, !EVADIU)
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = EVADIU)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão") +
+theme(legend.position="none", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=55, c=100)
+cadeirasperdidas.boxplot <- ggplot(data.by.params, aes(x = EVADIU, y = CadeirasPerdidas, fill = EVADIU)) +
+geom_boxplot()+
+labs(x = "Situação de evasão no primeiro período", y = "Total de disciplinas perdidas") +
+ggtitle("Dispersão da quantidade de disciplinas perdidas de acordo com a situação de evasão") +
+theme(legend.position="none", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=55, c=100)
+cadeirasperdidas.boxplot
+A análise atual tem como intuito a <b>compreensão</b> dos dados para a predição, bem como a elaboração de atributos para ajudar na classificação dos dados.
+bp<- ggplot(data.perdeu3, aes(x="", y=..count.., fill=EVADIU))+
+geom_bar(width = 1, stat = "identity")
+bp
+bp<- ggplot(data.perdeu3, aes(stat='count',x="", y=..count.., fill=EVADIU))+
+geom_bar(width = 1, stat = "identity")
+bp
+bp<- ggplot(stat='count', data.perdeu3, aes(x="", y=..count.., fill=EVADIU))+
+geom_bar(width = 1, stat = "identity")
+bp
+bp<- ggplot(stat='count', data.perdeu3, aes(x="", y=(..count..)/sum(..count..), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity")
+bp
+bp<- ggplot( data.perdeu3, aes(x="", y=(..count..)/sum(..count..), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity")
+bp
+bp<- ggplot(stat='count', data.perdeu3, aes(x="", y=(..count..)/sum(..count..), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity")
+bp
+bp<- ggplot(stat='count', data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y")  +
+theme(legend.position="none", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=55, c=100)
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y")  +
+theme(legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100)
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y")  +
+theme(legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100)
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100)
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +  +
+geom_text(aes(y = factor(EVADIU)/3 + c(0, cumsum(factor(EVADIU))[-length(factor(EVADIU))]),
+label = percent(factor(EVADIU)/100)), size=5)
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(aes(y = factor(EVADIU)/3 + c(0, cumsum(factor(EVADIU))[-length(factor(EVADIU))]),
+label = percent(factor(EVADIU)/100)), size=5)
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100)
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count.. -30 ),color="white")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(), legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count.. -30 ),color="white")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(), legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(), axist.text.y=element_blank(), legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(), axis.text.y=element_blank(), legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(), axis.text.y=element_blank(), legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white") + labs(legend= "s")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(), axis.text.y=element_blank(), legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  + scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")
+bp
+bp<- ggplot(data.perdeu3, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Quantidade de estudantes que perderam mais de 3 cadeiras e sua situação de evasão")
+bp
+data.by.params.perdeu <- subset(data.by.params, EVADIU)
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(EVADIU), fill=EVADIU))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Quantidade de estudantes que perderam mais de 3 cadeiras e sua situação de evasão")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Quantidade de estudantes que perderam mais de 3 cadeiras e sua situação de evasão")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 90)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Quantidade de estudantes que perderam mais de 3 cadeiras e sua situação de evasão")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Quantidade de estudantes que perderam mais de 3 cadeiras e sua situação de evasão")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+scale_fill_hue(l=60, c=100) +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+scale_fill_hue(l=56, c=100) +
+scale_fill_discrete(name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labels(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count..  ),color="white")+
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count.. /2 + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count.. + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count../3 + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count../4 + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count',aes(label=..count.., y = ..count../5 + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = (..count../5) + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = (..count../7) + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = (..count../7 - 10 ) + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = (..count../2) + c(0,cumsum(..count..)[-length(..count..)]) , color="white")) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = (..count../2) + c(0,cumsum(..count..)[-length(..count..)]) , color="white"), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = (..count../2) + c(0,cumsum(..count..)[-length(..count..)]) , color="white"), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 90)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = (..count../2) + c(0,cumsum(..count..)[-length(..count..)]) , color="white"), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = (..count../2) + c(0,cumsum(..count..)[-length(..count..)]) , color="white"), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = -(..count../2) + c(0,cumsum(..count..)[-length(..count..)]) , color="white"), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = - ((..count../2) + c(0,cumsum(..count..)[-length(..count..)])) , color="white"), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y = - ((..count../2) + c(0,cumsum(..count..)[-length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno Perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y =  ((..count../2) + c(0,cumsum(..count..)[-length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y =  ((..count../2) + c(0,cumsum(..count..)[-length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno perdeu mais de 3 cadeiras") +
+geom_text(stat='count', aes(label=..count.., y =  ((..count../2) + c(0,cumsum(..count..)[+length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno perdeu mais de 3 cadeiras") +
+geom_text(stat='count', color="white", aes(label=..count.., y =  ((..count../2) + c(0,cumsum(..count..)[+length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno perdeu mais de 3 cadeiras") +
+geom_text(stat='count', color="white", aes(label=..count.., y =  ((..count../2) + c(0,cumsum(..count..)[-length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno perdeu mais de 3 cadeiras") +
+geom_text(stat='count', color="white", aes(label=..count.., y =  ((..count../2) + c(0,-cumsum(..count..)[+length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno perdeu mais de 3 cadeiras") +
+geom_text(stat='count', color="white", aes(label=..count.., y =  ((..count../2) + c(0,cumsum(..count..)[length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno perdeu mais de 3 cadeiras") +
+geom_text(stat='count', color="white", aes(label=..count.., y =  ((..count../2) + c(0,cumsum(..count..))) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
+bp<- ggplot(data.by.params.perdeu, aes(x="", factor(Perdeu3), fill=Perdeu3))+
+geom_bar(width = 1, stat = "identity") + coord_polar(theta="y", start= 0)  +
+theme(axis.text.x=element_blank(),legend.position="bottom", panel.background = element_rect(fill = "white"), panel.grid.major = element_line(colour = "gray96"), plot.title = element_text(hjust = 0.5))  +
+labs(x="", y="") +
+scale_fill_discrete(l=56, c=100, name = "Aluno perdeu mais de 3 cadeiras") +
+geom_text(stat='count', color="white", aes(label=..count.., y =  ((..count../2) + c(0,cumsum(..count..)[length(..count..)])) ), size = 5) +
+ggtitle("Alunos que evadiram")
+bp
