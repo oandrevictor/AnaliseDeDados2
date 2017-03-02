@@ -57,5 +57,13 @@ for (j in 1:nrow(data.by.params)){
   
 }
 
+glm.fit <- train(evadiu ~ . -matricula,
+                 data=train.data,
+                 method="glm",
+                 family="binomial",
+                 na.action = na.omit)
+
+x <- predict(glm.fit, newdata=test.data)
+
 ```
 
