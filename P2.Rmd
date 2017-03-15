@@ -1,24 +1,42 @@
 ---
 title: "Lab 3 - Parte 2:Prevendo Evasão"
 author: "André Victor de Andrade Lopes"
-date: "20 de fevereiro de 2017"
-output: html_document
+date: "3 de Março de 2017"
+output:
+  html_document:
+    code_folding: hide
+    #theme: flatly
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
 ---
+<style type="text/css">
+body, td {
+   font-size: 14px;
+}
+code.r{
+  font-size: 11px;
+}
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,dev=c('png','postscript'))
 knitr::opts_chunk$set(comment=NA, fig.width=8, fig.align='center', fig.env='marginfigure')
 #library imports
-#install.packages("tidyr")
+#install.packages("caret", dependencies = TRUE)
+#install.packages("glmnet")
 library(dplyr)
 library(ggplot2)
 library(plyr)
 library(tidyr)
 library(caret)
+library(glmnet)
 
 ```
 
-## Preparando os Dados: Criação de variável + Treino de Teste
+##1. Preparando os Dados
+### 1.1. Obtendo os dados e filtrando
+O primeiro passo a ser feito é obter os dados e filtrar o que é importante para a naĺise. 
 ```{r}
 training.data.raw <- read.csv('treino_classificacao_v2.csv',header=T)
 
@@ -28,6 +46,7 @@ training.by.year <- training.data.raw[c(1,4,7)]
 training.by.year <- aggregate(MAT_TUR_ANO ~ MAT_ALU_MATRICULA + EVADIU, training.by.year,  FUN= mean)
 #Get only the data of students that evade
 evasions.by.year <- subset(training.by.year, EVADIU)
+training.data.raw <- training.data.raw %>% mutate(disciplina = as.factor(gsub(" ",".",disciplina)))
 
 data.by.params <- spread(training.data.raw, key = disciplina, value = MAT_MEDIA_FINAL)
 data.by.params[is.na(data.by.params)] <- 0
@@ -37,8 +56,11 @@ data.by.params <- data.by.params %>%
   summarise_each(funs(sum))
 
 data.by.params <- merge(data.by.params, training.by.year, by = "MAT_ALU_MATRICULA")
-
-data.by.params["Perdeu3"] <- FALSE
+```
+###1.2. Adicionar novas variáveis
+Agora, iremos criar as variáveis que foram elaboradas na primeira parte da anaĺise: Quantidade de Cadeiras com nota baixo de 5, e se o estudante perdeu mais de 3 cadeiras.
+```{r}
+data.by.params["Perdeu3"] <- 0
 data.by.params["CadeirasPerdidas"] <- 0
 
 for (j in 1:nrow(data.by.params)){ 
@@ -52,18 +74,271 @@ for (j in 1:nrow(data.by.params)){
   }
     data.by.params[j,11]<- tt
   if(tt>3){
-    data.by.params[j,10] <- TRUE
+    data.by.params[j,10] <- 1
   }
-  
 }
+```
+### 1.3. Dividir amostra em Treino e Teste
+Para treinarmos os modelos e testá-los, separamos a amostra em duas fatias: 70% para treino, 30% para teste.
+```{r}
+## 70% da amostra
+smp_size <- floor(0.70 * nrow(data.by.params))
 
-glm.fit <- train(evadiu ~ . -matricula,
-                 data=train.data,
-                 method="glm",
-                 family="binomial",
-                 na.action = na.omit)
+set.seed(123)
+train_ind <- sample(seq_len(nrow(data.by.params)), size = smp_size)
 
-x <- predict(glm.fit, newdata=test.data)
+data.by.params <-  subset( data.by.params, select = -MAT_ALU_MATRICULA )
+data.by.params$EVADIU <- as.numeric(data.by.params$EVADIU)
+colnames(data.by.params)[3] <- "IC"
+
+#Divisão de teste e treino.
+train <- data.by.params[train_ind, ]
+test <- data.by.params[-train_ind, ]
 
 ```
 
+##2. Regressão Logística
+###2.1. Treino
+A seguir, definimos o modelo de regressão logística e, ao analisarmos os coeficientes, definimos as variáveis que são mais importantes para o modelo.
+```{r}
+model.logit <- glm(EVADIU ~.,family=binomial(link='logit'),data=train)
+```
+### 2.2. Análise sobre o modelo
+#### 2.2.1. As variáveis
+```{r}
+summary(model.logit)
+```
+A variável referente a Introdução a computação apresenta o valor de Standard Error baixo, e o p valor baixo também, assim consideramos que esta é uma variável interessante para o modelo.
+Outra variável que também tem o p valor baixo, e o Standard Error baixo é "MATTUR_ANO" que é a variável referente ao ano de ingresso do estudante. Assim, essa variável também é considerada importante para o modelo, o que de certa forma faz sentido uma vez que na primeira parte da análise percebemos que a quantidade de evasão vem aumentando no decorrer dos anos.
+
+#### 2.2.2. Desvio
+```{r}
+anova(model.logit,test="Chisq")
+```
+Analisando os desvios e o p-valor, podemos perceber que os p-valor das variáveis referentes a nota de Introdução a Computação e ano de matricula do estudante são bem baixos, ou seja, o modelo sem as variáveis não expressa tão bem a variância que o modelo com as variáveis.
+
+#### 2.2.3. Acurácia
+Na acurácia, analisamos a proporção das observações corretamente classificadas.
+Para o modelo de regressão logística, temos que mais de 90% dos dados foram classificados corretamente.
+```{r}
+fitted.results <- predict(model.logit,test,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+
+misClasificError <- mean(fitted.results != test$EVADIU)
+print(paste('Accuracy',1-misClasificError))
+```
+#### 2.2.4. Precisão e Recall
+```{r}
+predicted<-ifelse(fitted.results> 0.5,1,0)
+
+actual <- as.numeric(test$EVADIU)
+
+confusionMatrix(actual, predicted, positive = '1')
+```
+A partir da Confusion Matrix podemos obter os valores:
+<b>TP:</b> true-positive = 25 
+<b>TN:</b> true-negative = 365
+<b>FP:</b> false-positive = 8
+<b>FN:</b> false-negative = 8
+
+<b> Precisão: </b>Observações classificadas como positiva corretamente <i>(Ou seja, a observação foi classificada como positiva e é de fato positiva)</i> = TP / (TP+FP) = 
+```{r}
+precisao.logist <-25 / (25+8)
+print(precisao.logist)
+```
+<b> Recall: </b>Observações positiva classificadas corretamente <i>(Ou seja, a observação é positiva e foi classificada como tal)</i> =  TP / (TP+FN)
+```{r}
+recall.logist <-25 / (25+8)
+print(recall.logist)
+```
+Considerando Acurácia, Precisão e Recall, temos que a predição teve um bom resultado. Todos os valores estão acima de 70%.
+
+## 3. Árvore de Decisão
+```{r}
+library(rpart)
+```
+
+### 3.1. Treino
+```{r}
+
+model.tree = rpart(EVADIU ~ . , data=train)
+
+```
+### 3.2. Análise do Modelo
+```{r}
+#library(gmodels)
+predicted.tree <- predict(model.tree,test)
+predicted.tree <-ifelse(predicted.tree> 0.5,1,0)
+#predicted.tree <- subset(predicted.tree, select = 2)
+confusionMatrix(actual, predicted.tree, positive = '1')
+```
+
+Temos que a acurácia é praticamente igual a obtida anteriormente (97%).
+A partir da Confusion Matrix podemos obter os valores:
+<b>TP:</b> true-positive = 25 
+<b>TN:</b> true-negative = 367
+<b>FP:</b> false-positive = 8
+<b>FN:</b> false-negative = 6
+
+<b> Precisão: </b>Observações classificadas como positiva corretamente <i>(Ou seja, a observação foi classificada como positiva e é de fato positiva)</i> = TP / (TP+FP) = 
+```{r}
+precisao.tree <-25 / (25+8)
+print(precisao.tree)
+```
+<b> Recall: </b>Observações positiva classificadas corretamente <i>(Ou seja, a observação é positiva e foi classificada como tal)</i> =  TP / (TP+FN)
+```{r}
+recall.tree<-25 / (25+6)
+print(recall.tree)
+```
+Considerando Acurácia, Precisão e Recall, temos que a predição teve um bom resultado. Todos os valores estão acima de 70%. Em comparação aos resultados anteriores, temos que agora, o valor do recall é maior (cerca de 80%).
+
+## 4. Controle de Overfitting
+
+### 4.1. Regressão Lógica
+#### 4.1.1. Ridge
+Utilizaremos a função glmnet para desenvolver modelos com valores de lambda diferentes. Para tentarmos encontrar o melhor valor.
+
+```{r}
+set.seed(123)
+
+model.ridge = glmnet(x = model.matrix( ~ . -EVADIU, train),
+                y = train$EVADIU,
+                alpha = 0,
+                family = 'binomial')
+plot(model.ridge, xvar = "lambda", label = T)
+```
+Podemos ver que quando log de lambda é 4, todos os coeficientes são essencialmente zero. 
+A função cv.glmnet fará a validação cruzada.
+```{r}
+cv.ridge = cv.glmnet(model.matrix( ~ .  -EVADIU, train), y=train$EVADIU, alpha=0, family="binomial")
+
+plot(cv.ridge, sub = T)
+```
+#### 4.1.2. Lasso
+O modelo de regressão é ajustado com a função glmnet, sendo alpha igual a 1.
+```{r}
+set.seed(123)
+model.lasso = glmnet(x = model.matrix( ~ . -EVADIU, train),
+                y = train$EVADIU,
+                alpha = 1,
+                family = 'binomial')
+plot(model.lasso, xvar = "lambda", label = T)
+```
+Podemos visualizar os coeficientes do modelo:
+```{r}
+coef(model.lasso)[,10]
+```
+As variaveis que apresentam coeficiente maior que 0 são: CadeirasPerdidas e Introdução a computação. Assim, o melhor modelo deve ser composto apenas por elas duas.
+Validação Cruzada:
+```{r}
+cv.lasso = cv.glmnet(model.matrix( ~ . -EVADIU, train), y=train$EVADIU, alpha=1, family="binomial")
+plot(cv.lasso)
+```
+e assim, definimos o melhor modelo:
+```{r}
+set.seed(123)
+fitControl = trainControl(method = "cv", number = 10)
+best.glm.model = model.lasso = train(EVADIU ~ IC + CadeirasPerdidas,
+                   data=train,
+                   method="glm",
+                   family="binomial",
+                   preProcess = c('scale', 'center'),
+                   trControl = fitControl,
+                   na.action = na.omit)
+```
+
+### 4.2. Árvore de decisão
+```{r}
+dt.control = rpart.control(maxdepth=30)
+
+model.tree.again = rpart(EVADIU ~ . ,
+                           data=train,
+                           method="class",
+                           control=dt.control)
+
+printcp(model.tree.again)
+best.tree = prune(model.tree.again,
+ + model.tree.again$cptable[which.min(model.tree.again$cptable[,"xerror"]),"CP"])
+```
+
+### 4.3. Acurácia, precisão e recall
+#### 4.3.1. Regressão Logística
+```{r}
+pred.l.best <- predict(best.glm.model, test)
+
+pred.l.best<-ifelse(pred.l.best> 0.5,1,0)
+
+confusionMatrix(actual, pred.l.best, positive = '1')
+```
+Temos que a acurácia é praticamente igual a obtida anteriormente (96%).
+A partir da Confusion Matrix podemos obter os valores:
+<b>TP:</b> true-positive = 27 
+<b>TN:</b> true-negative = 364
+<b>FP:</b> false-positive = 6
+<b>FN:</b> false-negative = 9
+
+<b> Precisão: </b>Observações classificadas como positiva corretamente <i>(Ou seja, a observação foi classificada como positiva e é de fato positiva)</i> = TP / (TP+FP) = 
+```{r}
+precisao.logist.best <-27 / (27+6)
+print(precisao.logist.best)
+```
+<b> Recall: </b>Observações positiva classificadas corretamente <i>(Ou seja, a observação é positiva e foi classificada como tal)</i> =  TP / (TP+FN)
+```{r}
+recall.logist.best <-27 / (27+9)
+print(recall.logist.best)
+```
+Considerando Acurácia, Precisão e Recall, temos que a predição teve um bom resultado. Todos os valores estão acima de 70%. Em comparação aos resultados anteriores, temos que agora, a precisão é maior (cerca de 82%).
+
+#### 4.3.2. Árvore de Decisão
+```{r}
+pred.t.best <- predict(best.tree, test)
+
+pred.t.best<-ifelse(pred.t.best> 0.5,1,0)
+pred.t.best<- subset(pred.t.best, select = 2)
+
+confusionMatrix(actual, pred.t.best, positive = '1')
+```
+
+Temos que a acurácia é praticamente igual a obtida anteriormente (96%).
+A partir da Confusion Matrix podemos obter os valores:
+<b>TP:</b> true-positive = 25 
+<b>TN:</b> true-negative = 367
+<b>FP:</b> false-positive = 8
+<b>FN:</b> false-negative = 6
+
+<b> Precisão: </b>Observações classificadas como positiva corretamente <i>(Ou seja, a observação foi classificada como positiva e é de fato positiva)</i> = TP / (TP+FP) = 
+```{r}
+precisao.tree.best <-25 / (25+8)
+print(precisao.tree.best)
+```
+<b> Recall: </b>Observações positiva classificadas corretamente <i>(Ou seja, a observação é positiva e foi classificada como tal)</i> =  TP / (TP+FN)
+```{r}
+recall.tree.best <-25 / (25+6)
+print(recall.tree.best)
+```
+Considerando Acurácia, Precisão e Recall, temos que a predição teve um bom resultado. Todos os valores estão acima de 70%. Em comparação aos resultados anteriores, o resultado é igual ao obtido anteriormente.
+
+## 5. Aplicação em dados pessoais
+```{r}
+meusdados= data.frame(Álgebra.Vetorial.e.Geometria.Analítica = 3.5, Cálculo.Diferencial.e.Integral.I = 0.5, IC=7.8, Laboratório.de.Programação.I = 8.5, Leitura.e.Produção.de.Textos = 7.2, Programação.I = 8.5, EVADIU = 0, Perdeu3 = 0, CadeirasPerdidas=2, MAT_TUR_ANO = 2014)
+
+```
+
+### Árvore
+```{r}
+aplicacao.predict.tree <- predict(best.tree, meusdados)
+aplicacao.predict.tree <- ifelse(aplicacao.predict.tree> 0.5,1,0)
+aplicacao.predict.tree<- subset(aplicacao.predict.tree, select = 2)
+resultado1 <- aplicacao.predict.tree[1:1]
+resultado1
+```
+
+### Regressão Lógica
+```{r}
+aplicacao.predict.logit <- predict(best.glm.model, meusdados)
+aplicacao.predict.logit <- ifelse(aplicacao.predict.logit> 0.5,1,0)
+resultado2<- unique(aplicacao.predict.logit[1:1])
+resultado2
+
+```
+Em ambos os modelos, o resultado foi 0, o que é condiz com a realidade.

@@ -1,0 +1,133 @@
+---
+title: "P3"
+author: "André Victor de Andrade"
+date: "14 de março de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,dev=c('png','postscript'))
+knitr::opts_chunk$set(comment=NA, fig.width=8, fig.align='center', fig.env='marginfigure')
+#library imports
+#install.packages("caret", dependencies = TRUE)
+#install.packages("glmnet")
+library(dplyr)
+library(ggplot2)
+library(plyr)
+library(tidyr)
+library(caret)
+library(glmnet)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+training.data.raw <- read.csv('lab3_kaggle_classificacao_treino.csv',header=T)
+test <- read.csv('lab3_kaggle_classificacao_teste.csv',header=T)
+
+training.by.year <- training.data.raw[c(1,4,7)]
+test.by.year <- test[c(1,4,6)]
+
+training.by.year <- aggregate(MAT_TUR_ANO ~ MAT_ALU_MATRICULA + EVADIU, training.by.year,  FUN= mean)
+test.by.year <- aggregate(MAT_TUR_ANO ~ MAT_ALU_MATRICULA , test.by.year,  FUN= mean)
+
+#Get only the data of students that evade
+evasions.by.year <- subset(training.by.year, EVADIU)
+training.data.raw <- training.data.raw %>% mutate(DISCIPLINA = as.factor(gsub(" ",".",DISCIPLINA)))
+test <- test %>% mutate(DISCIPLINA = as.factor(gsub(" ",".",DISCIPLINA)))
+test <- spread(test, key = DISCIPLINA, value = MAT_MEDIA_FINAL)
+test[is.na(test)] <- 0
+test <-test[c(1,5,6,7,8,9,10)]
+test <- test %>% 
+  group_by(MAT_ALU_MATRICULA) %>% 
+  summarise_each(funs(sum))
+test <- merge(test, test.by.year, by = "MAT_ALU_MATRICULA")
+
+
+
+data.by.params <- spread(training.data.raw, key = DISCIPLINA, value = MAT_MEDIA_FINAL)
+data.by.params[is.na(data.by.params)] <- 0
+data.by.params <- data.by.params[c(1,6,7,8,9,10,11)]
+data.by.params <- data.by.params %>% 
+  group_by(MAT_ALU_MATRICULA) %>% 
+  summarise_each(funs(sum))
+
+data.by.params <- merge(data.by.params, training.by.year, by = "MAT_ALU_MATRICULA")
+
+```
+
+
+```{r}
+data.by.params["Perdeu3"] <- 0
+data.by.params["CadeirasPerdidas"] <- 0
+
+for (j in 1:nrow(data.by.params)){ 
+  x <- data.by.params[j,]
+  tt <- 0
+  for(i in 2:7) {
+    col <- x[i]
+     if (col < 5){
+       tt<- tt+ 1
+       }
+  }
+    data.by.params[j,11]<- tt
+  if(tt>3){
+    data.by.params[j,10] <- 1
+  }
+}
+
+data.by.params <-  subset( data.by.params, select = -MAT_ALU_MATRICULA )
+data.by.params$EVADIU <- as.numeric(data.by.params$EVADIU)
+colnames(data.by.params)[3] <- "IC"
+```
+
+
+```{r}
+test["Perdeu3"] <- 0
+test["CadeirasPerdidas"] <- 0
+
+
+for (j in 1:nrow(test)){ 
+  x <- test[j,]
+  tt <- 0
+  for(i in 2:7) {
+    col <- x[i]
+     if (col < 5){
+       tt<- tt+ 1
+       }
+  }
+    test[j,11]<- tt
+  if(tt>3){
+    test[j,10] <- 1
+  }
+}
+
+
+tests <-  subset( test, select = -MAT_ALU_MATRICULA )
+test$EVADIU <- as.numeric(data.by.params$EVADIU)
+colnames(test)[4] <- "IC"
+```
+
+Subdividindo o conjunto de treino em treino e teste
+```{r}
+train <- data.by.params
+
+```
+
+```{r}
+model.logit <- glm(EVADIU ~.,family=binomial(link='logit'),data=train)
+fitted.results <- predict(model.logit,test,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,TRUE,FALSE)
+
+answ <- data.frame(test[1])
+answ[2] <- c(fitted.results)
+colnames(answ)[2] <- "EVADIU"
+write.csv(answ, file = "MyData.csv",row.names=FALSE)
+
+
+```
+
